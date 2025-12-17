@@ -1,20 +1,26 @@
-import { Outlet, Link } from 'react-router-dom'
+import { Outlet } from "react-router-dom"
 
 function App() {
   return (
-    <div>
+    <>
+      <nav className="navbar navbar-dark bg-success px-3">
+        <span className="navbar-brand">Padel Store</span>
 
-      <nav>
-        <Link to="/">Home</Link> |{" "}
-        <Link to="/login">Login</Link> |{" "}
-        <Link to="/register">Register</Link>
+        <button
+          className="btn btn-outline-light ms-auto"
+          onClick={() => {
+            localStorage.removeItem("logged")
+            window.location.href = "/login"
+          }}
+        >
+          Logout
+        </button>
       </nav>
 
-      <hr />
-
-      <Outlet />
-
-    </div>
+      <div className="container mt-4">
+        <Outlet />
+      </div>
+    </>
   )
 }
 

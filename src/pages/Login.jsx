@@ -1,33 +1,53 @@
+import { Link } from "react-router-dom"
+
 function Login() {
+
+  const handleLogin = (e) => {
+    e.preventDefault()
+
+    const email = e.target.email.value
+    const password = e.target.password.value
+
+    const user = JSON.parse(localStorage.getItem("user"))
+
+    if (!user || user.email !== email || user.password !== password) {
+      alert("Credenciales incorrectas")
+      return
+    }
+
+    localStorage.setItem("logged", "true")
+    window.location.href = "/"
+  }
+
   return (
     <div className="container mt-5" style={{ maxWidth: "400px" }}>
-
       <h2 className="text-center mb-4">Login</h2>
 
-      <form>
+      <form onSubmit={handleLogin}>
+        <input
+          name="email"
+          type="email"
+          className="form-control mb-3"
+          placeholder="Email"
+          required
+        />
 
-        <div className="mb-3">
-          <input
-            type="email"
-            className="form-control"
-            placeholder="Email"
-          />
-        </div>
+        <input
+          name="password"
+          type="password"
+          className="form-control mb-3"
+          placeholder="Contraseña"
+          required
+        />
 
-        <div className="mb-3">
-          <input
-            type="password"
-            className="form-control"
-            placeholder="Contraseña"
-          />
-        </div>
-
-        <button className="btn btn-success w-100">
+        <button className="btn btn-success w-100 mb-3">
           Entrar
         </button>
-
       </form>
 
+      <p className="text-center">
+        ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
+      </p>
     </div>
   )
 }

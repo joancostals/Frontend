@@ -1,41 +1,51 @@
+import { Link } from "react-router-dom"
+
 function Register() {
+
+  const handleRegister = (e) => {
+    e.preventDefault()
+
+    const email = e.target.email.value
+    const password = e.target.password.value
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify({ email, password })
+    )
+
+    alert("Usuario registrado correctamente")
+    window.location.href = "/login"
+  }
+
   return (
     <div className="container mt-5" style={{ maxWidth: "400px" }}>
-
       <h2 className="text-center mb-4">Registro</h2>
 
-      <form>
+      <form onSubmit={handleRegister}>
+        <input
+          name="email"
+          type="email"
+          className="form-control mb-3"
+          placeholder="Email"
+          required
+        />
 
-        <div className="mb-3">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Nombre"
-          />
-        </div>
+        <input
+          name="password"
+          type="password"
+          className="form-control mb-3"
+          placeholder="Contraseña"
+          required
+        />
 
-        <div className="mb-3">
-          <input
-            type="email"
-            className="form-control"
-            placeholder="Email"
-          />
-        </div>
-
-        <div className="mb-3">
-          <input
-            type="password"
-            className="form-control"
-            placeholder="Contraseña"
-          />
-        </div>
-
-        <button className="btn btn-primary w-100">
+        <button className="btn btn-primary w-100 mb-3">
           Registrarse
         </button>
-
       </form>
 
+      <p className="text-center">
+        ¿Ya tienes cuenta? <Link to="/login">Login</Link>
+      </p>
     </div>
   )
 }
