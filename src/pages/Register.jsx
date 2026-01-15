@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 function Register() {
+  const navigate = useNavigate()
 
   const handleRegister = (e) => {
     e.preventDefault()
@@ -14,7 +15,7 @@ function Register() {
     )
 
     alert("Usuario registrado correctamente")
-    window.location.href = "/login"
+    navigate("/login")
   }
 
   return (

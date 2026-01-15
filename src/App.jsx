@@ -1,26 +1,28 @@
-import { Outlet } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import Home from "./pages/Home.jsx"
+import Login from "./pages/Login.jsx"
+import Register from "./pages/Register.jsx"
+import ProtectedRoute from "./components/ProtectedRoute.jsx"
 
 function App() {
   return (
-    <>
-      <nav className="navbar navbar-dark bg-success px-3">
-        <span className="navbar-brand">Padel Store</span>
+    <Router>
+      <Routes>
+        {/* Públicas */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-        <button
-          className="btn btn-outline-light ms-auto"
-          onClick={() => {
-            localStorage.removeItem("logged")
-            window.location.href = "/login"
-          }}
-        >
-          Logout
-        </button>
-      </nav>
-
-      <div className="container mt-4">
-        <Outlet />
-      </div>
-    </>
+        {/* Privada */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Router>
   )
 }
 
