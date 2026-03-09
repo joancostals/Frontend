@@ -1,55 +1,74 @@
+import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import Navbar from "../components/Navbar.jsx"
 
 function Login() {
   const navigate = useNavigate()
+  const [error, setError] = useState("")
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
 
     const email = e.target.email.value
     const password = e.target.password.value
 
-    const user = JSON.parse(localStorage.getItem("user"))
+    try {
+      const response = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
 
-    if (!user || user.email !== email || user.password !== password) {
-      alert("Credenciales incorrectas")
-      return
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || "Credenciales incorrectas")
+      }
+
+      // Guardar informacion en el localStorage
+      localStorage.setItem("token", data.token)
+      localStorage.setItem("user", JSON.stringify(data.user))
+      localStorage.setItem("logged", "true")
+      
+      navigate("/")
+    } catch (err) {
+      setError(err.message)
     }
-
-    localStorage.setItem("logged", "true")
-    navigate("/")
   }
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "400px" }}>
-      <h2 className="text-center mb-4">Login</h2>
+    <>
+      <Navbar />
+      <div className="container mt-5" style={{ maxWidth: "400px" }}>
+        <h2 className="text-center mb-4">Login</h2>
 
-      <form onSubmit={handleLogin}>
-        <input
-          name="email"
-          type="email"
-          className="form-control mb-3"
-          placeholder="Email"
-          required
-        />
+        {error && <div className="alert alert-danger">{error}</div>}
 
-        <input
-          name="password"
-          type="password"
-          className="form-control mb-3"
-          placeholder="Contraseña"
-          required
-        />
+        <form onSubmit={handleLogin}>
+          <input
+            name="email"
+            type="email"
+            className="form-control mb-3"
+            placeholder="Email"
+            required
+          />
 
-        <button className="btn btn-success w-100 mb-3">
-          Entrar
-        </button>
-      </form>
+          <input
+            name="password"
+            type="password"
+            className="form-control mb-3"
+            placeholder="Contraseña"
+            required
+          />
 
-      <p className="text-center">
-        ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
-      </p>
-    </div>
+          <button className="btn btn-success w-100 mb-3">Entrar</button>
+        </form>
+
+        <p className="text-center">
+          ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
+        </p>
+      </div>
+    </>
   )
 }
 
