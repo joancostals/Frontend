@@ -19,18 +19,9 @@ function Home() {
   const [open, setOpen] = useState(false);
 
   // --- FUNCIONES CARRO ---
-  const getTokenHeaders = () => {
-    return {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem("token")}`
-    }
-  }
-
   const fetchCartFromBackend = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/carritos", {
-        headers: getTokenHeaders()
-      });
+      const res = await apiFetch("/carritos");
       const data = await res.json();
       setCart(data.items || []);
     } catch (err) {
@@ -41,9 +32,8 @@ function Home() {
   const addToCart = async (product) => {
     try {
       const precioNumerico = parseFloat(product.price.replace(" €", "").replace(".", ""));
-      await fetch(`http://localhost:5000/api/carritos/add/${product.id_pala}`, {
+      await apiFetch(`/carritos/add/${product.id_pala}`, {
         method: "POST",
-        headers: getTokenHeaders(),
         body: JSON.stringify({
           nombre: product.name,
           precio: precioNumerico
@@ -58,9 +48,8 @@ function Home() {
 
   const removeFromCart = async (product) => {
     try {
-      await fetch(`http://localhost:5000/api/carritos/remove/${product.id_pala}`, {
-        method: "DELETE",
-        headers: getTokenHeaders()
+      await apiFetch(`/carritos/remove/${product.id_pala}`, {
+        method: "DELETE"
       });
       await fetchCartFromBackend();
     } catch (err) {
@@ -70,9 +59,8 @@ function Home() {
 
   const handleCheckout = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/pedidos/checkout", {
-        method: "POST",
-        headers: getTokenHeaders()
+      const res = await apiFetch("/pedidos/checkout", {
+        method: "POST"
       });
 
       if (!res.ok) {

@@ -20,18 +20,9 @@ function Checkout() {
     fetchCartFromBackend()
   }, [])
 
-  const getTokenHeaders = () => {
-    return {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem("token")}`
-    }
-  }
-
   const fetchCartFromBackend = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/carritos", {
-        headers: getTokenHeaders()
-      })
+      const res = await apiFetch("/carritos")
       const data = await res.json()
       
       const items = data.items || []
@@ -57,9 +48,8 @@ function Checkout() {
     e.preventDefault()
 
     try {
-      const res = await fetch("http://localhost:5000/api/pedidos/checkout", {
+      const res = await apiFetch("/pedidos/checkout", {
         method: "POST",
-        headers: getTokenHeaders(),
         body: JSON.stringify({ detallesEnvio: formData })
       })
 

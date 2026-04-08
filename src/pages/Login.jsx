@@ -13,7 +13,7 @@ function Login() {
     const password = e.target.password.value
 
     try {
-      const response = await fetch("http://localhost:5000/api/users/login", {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -26,11 +26,13 @@ function Login() {
       }
 
       // Guardar informacion en el localStorage
-      localStorage.setItem("token", data.token)
+      localStorage.setItem("accessToken", data.accessToken)
+      localStorage.setItem("refreshToken", data.refreshToken)
       localStorage.setItem("user", JSON.stringify(data.user))
       localStorage.setItem("logged", "true")
       
       navigate("/")
+
     } catch (err) {
       setError(err.message)
     }
