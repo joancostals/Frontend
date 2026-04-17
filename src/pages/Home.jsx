@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar.jsx";
+import { apiFetch } from "../utils/apiFetch.js";
 
 // Imágenes
 import bullpadel from "../assets/bullpadel_vertex.png";
@@ -32,17 +33,24 @@ function Home() {
   const addToCart = async (product) => {
     try {
       const precioNumerico = parseFloat(product.price.replace(" €", "").replace(".", ""));
-      await apiFetch(`/carritos/add/${product.id_pala}`, {
+      const res = await apiFetch(`/carritos/add/${product.id_pala}`, {
         method: "POST",
         body: JSON.stringify({
           nombre: product.name,
           precio: precioNumerico
         })
       });
+      if (!res.ok) {
+         const errData = await res.text();
+         console.error("Error backend adding to cart:", errData);
+         alert("Error backend: " + errData);
+         return;
+      }
       await fetchCartFromBackend(); // refrescar carrito desde backend
       setOpen(true);
     } catch (err) {
       console.error("Error adding to cart:", err);
+      alert("Excepción de JS agregando producto: " + err.message);
     }
   };
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar.jsx"
+import { apiFetch } from "../utils/apiFetch.js"
 
 function Checkout() {
   const navigate = useNavigate()
@@ -11,9 +12,9 @@ function Checkout() {
   const [formData, setFormData] = useState({
     nombre: "",
     apellidos: "",
+    apellidos: "",
     correo: "",
-    direccion: "",
-    tarjeta: ""
+    direccion: ""
   })
 
   useEffect(() => {
@@ -48,18 +49,46 @@ function Checkout() {
     e.preventDefault()
 
     try {
-      const res = await apiFetch("/pedidos/checkout", {
+      // 1. Cridar a l'API per crear la comanda amb estat pending
+      const resPedido = await apiFetch("/pedidos/checkout", {
         method: "POST",
         body: JSON.stringify({ detallesEnvio: formData })
       })
 
-      if (!res.ok) {
-        const errorData = await res.json()
+      if (!resPedido.ok) {
+        const errorData = await resPedido.json()
         throw new Error(errorData.message || "Error al realizar checkout")
       }
 
-      alert("¡Compra procesada con éxito! Recibirás los detalles en breve.")
-      navigate("/")
+      const pedidoData = await resPedido.json();
+      const orderId = pedidoData.data.id_pedido;
+
+      // 2. Cridar a la nostra API integrant Stripe per crear la sessió
+      const resSession = await apiFetch("/checkout/create-session", {
+        method: "POST",
+        body: JSON.stringify({ orderId, products: cart })
+      });
+
+      if (!resSession.ok) {
+         let errText = "Error en el backend al generar pago";
+         try {
+             const data = await resSession.json();
+             errText = data.message;
+         } catch { }
+         throw new Error("Stripe Error: " + errText);
+      }
+
+      const sessionData = await resSession.json();
+
+      // 3. Redirigir l'usuari a la url de la sessió retornada per Stripe
+      // Nota: stripe.redirectToCheckout ya no tiene soporte en nuevas versiones, 
+      // la mejor práctica es redirigir al checkout url dado por la API
+      if (sessionData.url) {
+        window.location.href = sessionData.url;
+      } else {
+        throw new Error("No se ha recibido una URL válida de pago");
+      }
+
     } catch (err) {
       alert(err.message)
       console.error("Error processando pago:", err)
@@ -121,15 +150,8 @@ function Checkout() {
                 <input type="text" className="form-control" name="direccion" placeholder="Calle, Número, Ciudad, CP" value={formData.direccion} onChange={handleChange} required />
               </div>
 
-              <h5 className="mb-3 mt-4 border-top pt-3">Método de Pago</h5>
-              <div className="mb-4">
-                <label htmlFor="tarjeta" className="form-label">Número de Tarjeta (Mock)</label>
-                <input type="text" className="form-control" name="tarjeta" placeholder="1234 5678 9101 1121" value={formData.tarjeta} onChange={handleChange} required />
-                <small className="text-light opacity-75">No introduzcas datos reales.</small>
-              </div>
-
-              <button className="w-100 btn btn-success btn-lg mt-2 fw-bold" type="submit">
-                Pagar y Terminar Pedido
+              <button className="w-100 btn btn-success btn-lg mt-4 fw-bold" type="submit">
+                Confirmar pedido e ir a Pagar a Stripe
               </button>
 
             </form>
