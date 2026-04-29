@@ -6,6 +6,9 @@ import Checkout from "./pages/Checkout.jsx"
 import CheckoutSuccess from "./pages/CheckoutSuccess.jsx"
 import CheckoutCancel from "./pages/CheckoutCancel.jsx"
 import ProtectedRoute from "./components/ProtectedRoute.jsx"
+import AdminRoute from "./components/AdminRoute.jsx"
+import UserDashboard from "./pages/UserDashboard.jsx"
+import AdminDashboard from "./pages/AdminDashboard.jsx"
 
 function App() {
   return (
@@ -47,6 +50,24 @@ function App() {
             <ProtectedRoute>
               <CheckoutCancel />
             </ProtectedRoute>
+          }
+        />
+        
+        {/* Dashboards */}
+        <Route
+          path="/dashboard/user"
+          element={
+            <ProtectedRoute>
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
           }
         />
       </Routes>

@@ -31,7 +31,12 @@ function Login() {
       localStorage.setItem("user", JSON.stringify(data.user))
       localStorage.setItem("logged", "true")
       
-      navigate("/")
+      // Redirigir según el rol
+      if (data.user.role === "admin") {
+        navigate("/dashboard/admin")
+      } else {
+        navigate("/dashboard/user")
+      }
 
     } catch (err) {
       setError(err.message)
