@@ -19,7 +19,8 @@ function UserDashboard() {
     const fetchPedidos = async () => {
       try {
         const token = localStorage.getItem("accessToken")
-        const response = await fetch(`http://localhost:5000/api/pedidos/usuario/${user.id_usuario}`, {
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+        const response = await fetch(`${apiUrl}/api/pedidos/usuario/${user.id_usuario}`, {
           headers: {
             "Authorization": `Bearer ${token}`
           }

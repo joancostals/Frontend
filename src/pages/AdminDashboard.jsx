@@ -37,9 +37,10 @@ function AdminDashboard() {
         const token = localStorage.getItem("accessToken")
         const headers = { "Authorization": `Bearer ${token}` }
 
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
         const [resUsers, resPedidos] = await Promise.all([
-          fetch("http://localhost:5000/api/users", { headers }),
-          fetch("http://localhost:5000/api/pedidos", { headers })
+          fetch(`${apiUrl}/api/users`, { headers }),
+          fetch(`${apiUrl}/api/pedidos`, { headers })
         ])
 
         const dataUsers = await resUsers.json()
