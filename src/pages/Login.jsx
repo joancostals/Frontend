@@ -31,12 +31,12 @@ function Login() {
       localStorage.setItem("refreshToken", data.refreshToken)
       localStorage.setItem("user", JSON.stringify(data.user))
       localStorage.setItem("logged", "true")
-      
+
       // Redirigir según el rol
       if (data.user.role === "admin") {
         navigate("/dashboard/admin")
       } else {
-        navigate("/dashboard/user")
+        navigate("/")
       }
 
     } catch (err) {
@@ -47,34 +47,43 @@ function Login() {
   return (
     <>
       <Navbar />
-      <div className="container mt-5" style={{ maxWidth: "400px" }}>
-        <h2 className="text-center mb-4">Login</h2>
+      <div className="container mt-5 d-flex justify-content-center">
+        <div className="card p-5 shadow-lg border-0 w-100" style={{ maxWidth: "450px" }}>
+          <h1 className="text-center mb-4 text-gradient fw-bold">Bienvenido</h1>
+          <p className="text-center text-muted mb-4">Inicia sesión para continuar</p>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+          {error && <div className="alert alert-danger py-2">{error}</div>}
 
-        <form onSubmit={handleLogin}>
-          <input
-            name="email"
-            type="email"
-            className="form-control mb-3"
-            placeholder="Email"
-            required
-          />
+          <form onSubmit={handleLogin}>
+            <div className="mb-3">
+              <label className="form-label small text-muted">Correo Electrónico</label>
+              <input
+                name="email"
+                type="email"
+                className="form-control"
+                placeholder="tu@correo.com"
+                required
+              />
+            </div>
 
-          <input
-            name="password"
-            type="password"
-            className="form-control mb-3"
-            placeholder="Contraseña"
-            required
-          />
+            <div className="mb-4">
+              <label className="form-label small text-muted">Contraseña</label>
+              <input
+                name="password"
+                type="password"
+                className="form-control"
+                placeholder="********"
+                required
+              />
+            </div>
 
-          <button className="btn btn-success w-100 mb-3">Entrar</button>
-        </form>
+            <button className="btn btn-primary w-100 btn-lg mb-3 py-2 fw-bold">Entrar</button>
+          </form>
 
-        <p className="text-center">
-          ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
-        </p>
+          <p className="text-center mt-3 mb-0">
+            ¿No tienes cuenta? <Link to="/register" className="text-primary fw-bold text-decoration-none">Regístrate</Link>
+          </p>
+        </div>
       </div>
     </>
   )

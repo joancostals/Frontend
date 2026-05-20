@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 function Navbar() {
   const navigate = useNavigate()
   const logged = localStorage.getItem("logged") === "true"
-  
+
   let user = null
   try {
     user = JSON.parse(localStorage.getItem("user") || "{}")
@@ -20,9 +20,9 @@ function Navbar() {
   }
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow">
+    <nav className="navbar navbar-expand-lg sticky-top mb-4 shadow">
       <div className="container">
-        <Link className="navbar-brand fw-bold" to="/">Pádel Store</Link>
+        <Link className="navbar-brand fw-bold text-gradient fs-3" to="/">Pádel Store</Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span className="navbar-toggler-icon"></span>
         </button>

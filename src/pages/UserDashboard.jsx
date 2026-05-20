@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import Navbar from "../components/Navbar.jsx"
 import { useNavigate } from "react-router-dom"
+import { apiFetch } from "../utils/apiFetch.js"
 
 function UserDashboard() {
   const [pedidos, setPedidos] = useState([])
@@ -18,20 +19,21 @@ function UserDashboard() {
 
     const fetchPedidos = async () => {
       try {
-        const token = localStorage.getItem("accessToken")
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-        const response = await fetch(`${apiUrl}/api/pedidos/usuario/${user.id_usuario}`, {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        })
-
+        const response = await apiFetch(`/pedidos/usuario/${user.id_usuario}`)
         const data = await response.json()
+
         if (!response.ok) {
-          throw new Error(data.message || "Error al carregar comandes")
+          throw new Error(data.message || "Error al cargar pedidos")
         }
 
-        setPedidos(data.data || [])
+        const allPedidos = data.data || [];
+        // Filtrar solo los pagados
+        const pedidosFinalizados = allPedidos.filter(p =>
+          p.estado === 'finalizada' ||
+          p.estado === 'completado' ||
+          p.estado === 'paid'
+        );
+        setPedidos(pedidosFinalizados);
       } catch (err) {
         setError(err.message)
       } finally {
@@ -45,52 +47,74 @@ function UserDashboard() {
   return (
     <>
       <Navbar />
-      <div className="container mt-5">
-        <h2>Dashboard d'Usuari</h2>
-        <div className="card mb-4 mt-3">
-          <div className="card-body">
-            <h5 className="card-title">Dades del Perfil</h5>
-            <p className="card-text"><strong>Nom:</strong> {user.nombre}</p>
-            <p className="card-text"><strong>Email:</strong> {user.email}</p>
-            <p className="card-text"><strong>Rol:</strong> <span className="badge bg-primary">{user.role}</span></p>
+      <div className="container mt-5 mb-5">
+        <h1 className="text-gradient fw-bold mb-4">Mi Perfil</h1>
+
+        <div className="row g-4">
+          {/* Perfil */}
+          <div className="col-md-4">
+            <div className="card p-4 shadow-lg border-0 h-100">
+              <div className="text-center mb-3">
+                <div className="bg-primary rounded-circle d-inline-block p-3 mb-3">
+                  <i className="bi bi-person-fill fs-1 text-white"></i>
+                </div>
+                <h4 className="fw-bold">{user.nombre}</h4>
+                <span className="badge bg-primary-soft text-primary px-3 py-2">{user.role}</span>
+              </div>
+              <hr className="my-4 opacity-10" />
+              <div className="small text-muted mb-1">Correo Electrónico</div>
+              <div className="fw-medium mb-3">{user.email}</div>
+            </div>
+          </div>
+
+          {/* Pedidos */}
+          <div className="col-md-8">
+            <div className="card p-4 shadow-lg border-0 h-100">
+              <h4 className="fw-bold mb-4">Mis Compras Realizadas</h4>
+
+              {loading ? (
+                <div className="text-center py-5">
+                  <div className="spinner-border text-primary" role="status"></div>
+                </div>
+              ) : error ? (
+                <div className="alert alert-danger">{error}</div>
+              ) : pedidos.length === 0 ? (
+                <div className="text-center py-5">
+                  <i className="bi bi-bag-x fs-1 text-muted mb-3 d-block"></i>
+                  <p className="text-muted">No tienes compras finalizadas todavía.</p>
+                  <button onClick={() => navigate("/")} className="btn btn-primary">Ir a la tienda</button>
+                </div>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table table-hover align-middle custom-table">
+                    <thead>
+                      <tr>
+                        <th>ID Pedido</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th className="text-end">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pedidos.map(pedido => (
+                        <tr key={pedido.id_pedido}>
+                          <td className="font-monospace small">{pedido.id_pedido.substring(0, 8)}...</td>
+                          <td>{new Date(pedido.fecha).toLocaleDateString()}</td>
+                          <td>
+                            <span className="badge bg-success-soft text-success px-3 py-2">
+                              Pago Exitoso
+                            </span>
+                          </td>
+                          <td className="text-end fw-bold">{pedido.total.toFixed(2)} €</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-
-        <h4>Les meves comandes</h4>
-        {loading ? (
-          <p>Carregant comandes...</p>
-        ) : error ? (
-          <div className="alert alert-danger">{error}</div>
-        ) : pedidos.length === 0 ? (
-          <p>Encara no has fet cap comanda.</p>
-        ) : (
-          <div className="table-responsive">
-            <table className="table table-striped table-hover">
-              <thead>
-                <tr>
-                  <th>ID Comanda</th>
-                  <th>Data</th>
-                  <th>Estat</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pedidos.map(pedido => (
-                  <tr key={pedido.id_pedido}>
-                    <td>{pedido.id_pedido}</td>
-                    <td>{new Date(pedido.fecha).toLocaleDateString()}</td>
-                    <td>
-                      <span className={`badge ${pedido.estado === 'paid' ? 'bg-success' : 'bg-warning'}`}>
-                        {pedido.estado}
-                      </span>
-                    </td>
-                    <td>{pedido.total.toFixed(2)} €</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </div>
     </>
   )

@@ -12,7 +12,6 @@ function Checkout() {
   const [formData, setFormData] = useState({
     nombre: "",
     apellidos: "",
-    apellidos: "",
     correo: "",
     direccion: ""
   })
@@ -25,16 +24,16 @@ function Checkout() {
     try {
       const res = await apiFetch("/carritos")
       const data = await res.json()
-      
+
       const items = data.items || []
       setCart(items)
-      
+
       const sum = items.reduce((acc, current) => acc + (current.precio * current.cantidad), 0)
       setTotal(sum)
-      
+
       if (items.length === 0) {
-          alert("Tu carrito está vacío. Redirigiendo a la tienda...")
-          navigate("/")
+        alert("Tu carrito está vacío. Redirigiendo a la tienda...")
+        navigate("/")
       }
     } catch (err) {
       console.error("Error fetching cart:", err)
@@ -63,6 +62,9 @@ function Checkout() {
       const pedidoData = await resPedido.json();
       const orderId = pedidoData.data.id_pedido;
 
+      // Guardem el ID per a la verificació manual en cas que falli el webhook
+      localStorage.setItem("lastOrderId", orderId);
+
       // 2. Cridar a la nostra API integrant Stripe per crear la sessió
       const resSession = await apiFetch("/checkout/create-session", {
         method: "POST",
@@ -70,12 +72,12 @@ function Checkout() {
       });
 
       if (!resSession.ok) {
-         let errText = "Error en el backend al generar pago";
-         try {
-             const data = await resSession.json();
-             errText = data.message;
-         } catch { }
-         throw new Error("Stripe Error: " + errText);
+        let errText = "Error en el backend al generar pago";
+        try {
+          const data = await resSession.json();
+          errText = data.message;
+        } catch { }
+        throw new Error("Stripe Error: " + errText);
       }
 
       const sessionData = await resSession.json();
@@ -100,7 +102,7 @@ function Checkout() {
       <Navbar />
       <div className="container mt-5 mb-5">
         <h2 className="text-center mb-4">Finalizar Compra</h2>
-        
+
         <div className="row">
           {/* Resumen Carrito */}
           <div className="col-md-5 mb-4 order-md-2">
@@ -125,10 +127,10 @@ function Checkout() {
           </div>
 
           {/* Formulario */}
-          <div className="col-md-7 px-md-4 order-md-1 bg-dark text-white p-4 rounded shadow-sm">
+          <div className="col-md-7 px-md-4 order-md-1 card p-4 shadow-sm">
             <h4 className="mb-3">Datos de Envío y Pago</h4>
             <form onSubmit={handleCheckoutSubmit} className="needs-validation">
-                
+
               <div className="row g-3 mb-3">
                 <div className="col-sm-6">
                   <label htmlFor="nombre" className="form-label">Nombre</label>
